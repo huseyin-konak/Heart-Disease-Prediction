@@ -14,9 +14,9 @@
 
 ## 👤 Geliştirici
 
-| İsim | Bölüm | GitHub | LinkedIn |
-|------|-------|--------|----------|
-| **Hüseyin Konak** | Bilgisayar Mühendisliği | [@huseyin-konak](https://github.com/huseyin-konak) | [linkedin.com/in/huseyinkonak](https://linkedin.com/in/huseyinkonak) |
+| İsim | Bölüm | GitHub | LinkedIn | İletişim / E-Posta |
+|------|-------|--------|----------|-------------------|
+| **Hüseyin Konak** | Bilgisayar Mühendisliği | [@huseyin-konak](https://github.com/huseyin-konak) | [linkedin.com/in/huseyinkonak](https://linkedin.com/in/huseyinkonak) | [huseyinkonak.dev@gmail.com](mailto:huseyinkonak.dev@gmail.com) |
 
 ---
 
