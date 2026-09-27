@@ -16,7 +16,7 @@
 
 | İsim | Bölüm | GitHub | LinkedIn | İletişim / E-Posta |
 |------|-------|--------|----------|-------------------|
-| **Hüseyin Konak** | Bilgisayar Mühendisliği | [@huseyin-konak](https://github.com/huseyin-konak) | [linkedin.com/in/huseyinkonak](https://linkedin.com/in/huseyinkonak) | [huseyinkonak.dev@gmail.com](mailto:huseyinkonak.dev@gmail.com) |
+| **Hüseyin Konak** | Bilgisayar Mühendisliği | [@huseyin-konak](https://github.com/huseyin-konak) | [linkedin.com/in/huseyin-konak](https://www.linkedin.com/in/huseyin-konak/) | [huseyinkonak.dev@gmail.com](mailto:huseyinkonak.dev@gmail.com) |
 
 ---
 
