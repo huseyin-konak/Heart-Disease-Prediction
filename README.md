@@ -2,7 +2,7 @@
 
 > **Makine Öğrenmesi & Veri Madenciliği Projesi — 2026**  
 > Python • Scikit-Learn • Pandas • Seaborn • Matplotlib • Jupyter Notebook  
-> UCI Cleveland Heart Disease Veri Seti ile Çoklu Sınıflandırma ve Klinik Karar Destek Sistemi
+> UCI Cleveland Heart Disease veri seti ile ikili sınıflandırma: üç modelin karşılaştırılması
 
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![Scikit-Learn](https://img.shields.io/badge/scikit--learn-F7931E?logo=scikit-learn&logoColor=white)](https://scikit-learn.org/)
@@ -31,87 +31,88 @@
 7. [Karmaşıklık Matrisi (Confusion Matrix) & TP-FP-TN-FN Analizi](#-karmaşıklık-matrisi-confusion-matrix--tp-fp-tn-fn-analizi)
 8. [ROC Eğrileri ve AUC Analizi](#-roc-eğrileri-ve-auc-analizi)
 9. [Özellik Önemi (Feature Importance) ve Klinik Çıkarımlar](#-özellik-önemi-feature-importance-ve-klinik-çıkarımlar)
-10. [Proje Dizin Yapısı](#-proje-dizin-yapısı)
-11. [Kurulum ve Çalıştırma](#-kurulum-ve-çalıştırma)
+10. [Sınırlamalar](#-sınırlamalar)
+11. [Proje Dizin Yapısı](#-proje-dizin-yapısı)
+12. [Kurulum ve Çalıştırma](#-kurulum-ve-çalıştırma)
 
 ---
 
 ## 🎯 Proje Hakkında
 
-Bu proje, bireylerin klinik test, efor ve demografik verilerini kullanarak **kalp hastalığı riskini (1: Hasta, 0: Sağlıklı)** önceden tahmin eden uçtan uca bir makine öğrenmesi ve veri madenciliği çözümüdür.
+Bu proje, bireylerin klinik test, efor ve demografik verilerini kullanarak **kalp hastalığı varlığını (1: Hasta, 0: Sağlıklı)** tahmin eden uçtan uca bir makine öğrenmesi ve veri madenciliği çalışmasıdır.
 
-Kardiyovasküler hastalıklar küresel olarak en yaygın ölüm nedenlerinden biridir. Tıbbi tanıda **False Negative (hastaya yanlışlıkla sağlıklı demek)** teşhisi ölümcül risk taşıdığından, model seçiminde yalnızca genel doğruluk (Accuracy) değil; **Duyarlılık (Recall)** ve **ROC-AUC** metrikleri temel odak noktası olarak ele alınmıştır.
+Kardiyovasküler hastalıklar küresel olarak en yaygın ölüm nedenlerinden biridir. Tıbbi tanıda **False Negative (hastaya yanlışlıkla sağlıklı demek)** en riskli hata olduğundan, modeller yalnızca doğrulukla (Accuracy) değil; **Duyarlılık (Recall)** ve **ROC-AUC** metrikleriyle de karşılaştırılmıştır.
 
 ---
 
 ## 🏗 Sistem Mimarisi & Pipeline Akışı
 
 ```
-┌────────────────────────────────────────────────────────────────────────┐
-│               UÇTAN UCA MAKİNE ÖĞRENMESİ PİPELİNE AKIŞI                │
-│                                                                        │
-│   ┌─────────────────────┐                                             │
-│   │ Otomatik Veri       │  (GitHub Raw / UCI Cleveland Dataset)        │
-│   │ Yükleyici           │  pandas.read_csv()                           │
-│   └──────────┬──────────┘                                             │
-│              │                                                         │
-│   ┌──────────▼──────────┐                                             │
-│   │ Keşifçi Veri        │  - Eksik Veri Denetimi (Missing Values: 0)   │
-│   │ Analizi (EDA)       │  - Kutu Grafiği (Boxplot) ile Outlier Analizi│
-│   └──────────┬──────────┘                                             │
-│              │                                                         │
-│   ┌──────────▼──────────┐                                             │
-│   │ Veri Ön İşleme      │  - One-Hot Encoding (drop_first=True)        │
-│   │ (Pre-processing)    │  - Train/Test Split (%80 - %20, stratify)   │
-│   │                     │  - StandardScaler (Data Leakage Önlemli)     │
-│   └──────────┬──────────┘                                             │
-│              │                                                         │
-│              ├──────────────────┬──────────────────┐                   │
-│   ┌──────────▼──────────┐ ┌─────▼──────────┐ ┌─────▼──────────┐        │
-│   │ Gradient Boosting   │ │ Decision Tree  │ │ Bayesian Net   │        │
-│   │ Classifier          │ │ Classifier     │ │ (GaussianNB)   │        │
-│   └──────────┬──────────┘ └─────┬──────────┘ └─────┬──────────┘        │
-│              │                  │                  │                   │
-│   ┌──────────▼──────────────────▼──────────────────▼──────────┐        │
-│   │ Kapsamlı Değerlendirme & Görselleştirme                   │        │
-│   │ - Confusion Matrix (TP, FP, TN, FN etiketli Heatmap)      │        │
-│   │ - Karşılaştırmalı ROC-AUC Eğrileri                        │        │
-│   │ - Gradient Boosting Feature Importance Bar Plot           │        │
-│   └───────────────────────────────────────────────────────────┘        │
-└────────────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────┐
+│               UÇTAN UCA MAKİNE ÖĞRENMESİ PİPELİNE AKIŞI                 │
+│                                                                         │
+│   ┌─────────────────────┐                                               │
+│   │ Veri Yükleyici      │  pandas.read_csv() + yerel önbellek           │
+│   └──────────┬──────────┘                                               │
+│   ┌──────────▼──────────┐                                               │
+│   │ Keşifçi Veri        │  - Eksik değer ve eksik değer kodları         │
+│   │ Analizi (EDA)       │  - Hedef etiketin doğrulanması                │
+│   │                     │  - Kutu grafiği ile aykırı değer analizi      │
+│   └──────────┬──────────┘                                               │
+│   ┌──────────▼──────────┐                                               │
+│   │ Veri Ön İşleme      │  - One-Hot Encoding (drop_first=True)         │
+│   │                     │  - Train/Test Split (%80 - %20, stratify)     │
+│   │                     │  - StandardScaler (yalnızca eğitime fit)      │
+│   └──────────┬──────────┘                                               │
+│              ├──────────────────┬──────────────────┐                    │
+│   ┌──────────▼──────────┐ ┌─────▼──────────┐ ┌─────▼──────────┐         │
+│   │ Gradient Boosting   │ │ Decision Tree  │ │ Gaussian Naive │         │
+│   │ Classifier          │ │ Classifier     │ │ Bayes          │         │
+│   └──────────┬──────────┘ └─────┬──────────┘ └─────┬──────────┘         │
+│   ┌──────────▼──────────────────▼──────────────────▼──────────┐         │
+│   │ Değerlendirme & Görselleştirme                            │         │
+│   │ - Test seti metrikleri + 5 katlı çapraz doğrulama         │         │
+│   │ - Confusion Matrix (TP, FP, TN, FN etiketli)              │         │
+│   │ - Karşılaştırmalı ROC-AUC eğrileri                        │         │
+│   │ - Gradient Boosting özellik önemi                         │         │
+│   └───────────────────────────────────────────────────────────┘         │
+└─────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
 ## 📊 Veri Seti Tanımı ve Klinik Nitelikler
 
-Veri seti 303 örnek ve 14 temel öznitelikten oluşmaktadır:
+Veri seti 303 örnek ve 14 öznitelikten oluşur. Kullanılan CSV, UCI Cleveland veri setinin Kaggle'da yaygın olarak kullanılan, **yeniden kodlanmış** kopyasıdır. Aşağıdaki değer kodları bu CSV'deki gerçek dağılımlara göre verilmiştir:
 
 | Nitelik | Tanım | Değer Aralığı / Tür |
 |---------|-------|---------------------|
 | `age` | Yaş | 29 - 77 (Yıl) |
 | `sex` | Cinsiyet | 1 = Erkek, 0 = Kadın |
-| `cp` | Göğüs Ağrısı Tipi | 0: Tipik Angina, 1: Atipik Angina, 2: Non-anginal, 3: Asemptomatik |
+| `cp` | Göğüs Ağrısı Tipi | 0: Asemptomatik, 1: Atipik Angina, 2: Non-anginal, 3: Tipik Angina |
 | `trestbps` | Dinlenme Kan Basıncı | mm Hg |
 | `chol` | Serum Kolesterolü | mg/dl |
 | `fbs` | Açlık Kan Şekeri > 120 mg/dl | 1 = Doğru, 0 = Yanlış |
-| `restecg` | Dinlenme EKG Sonuçları | 0: Normal, 1: ST-T dalga anormalliği, 2: Sol ventrikül hipertrofisi |
+| `restecg` | Dinlenme EKG Sonuçları | 0, 1, 2 (normal / ST-T anormalliği / sol ventrikül hipertrofisi) |
 | `thalach` | Ulaşılan Maksimum Kalp Hızı | Nabız |
 | `exang` | Egzersiz Kaynaklı Angina | 1 = Evet, 0 = Hayır |
 | `oldpeak` | Egzersiz Kaynaklı ST Çökmesi | Dinlenmeye göre depresyon miktarı |
-| `slope` | Tepe Egzersiz ST Segment Eğimi | 0: Yukarı eğimli, 1: Düz, 2: Aşağı eğimli |
-| `ca` | Floroskopi ile Boyanan Ana Damar Sayısı | 0 - 3 |
-| `thal` | Talyum Stres Testi Sonucu | 1: Normal, 2: Sabit defekt, 3: Geri dönüşümlü defekt |
-| **`target`** | **Hedef Değişken (Teşhis)** | **1 = Kalp Hastalığı Var, 0 = Kalp Hastalığı Yok** |
+| `slope` | Tepe Egzersiz ST Segment Eğimi | 0, 1, 2 |
+| `ca` | Floroskopi ile Boyanan Ana Damar Sayısı | 0 - 3 (4 = eksik değer, 5 kayıt) |
+| `thal` | Talyum Stres Testi Sonucu | 1: Sabit defekt, 2: Normal, 3: Geri dönüşümlü defekt (0 = eksik değer, 2 kayıt) |
+| **`target`** | **Hedef Değişken (Teşhis)** | **Analizde: 1 = Kalp Hastalığı Var, 0 = Yok** |
+
+> [!IMPORTANT]
+> **Hedef etiket düzeltmesi:** Bu CSV'de ham `target = 1` olan grupta maksimum nabız daha yüksek (158'e karşı 139), ST çökmesi daha düşük (0,58'e karşı 1,59), efor anjinası (%14'e karşı %55) ve tıkalı damar sayısı (0,36'ya karşı 1,17) daha azdır; asemptomatik göğüs ağrısı (`cp = 0`) ise çoğunlukla `target = 0` grubundadır. Orijinal UCI verisinde bu bulguların tamamı **hastalıkla** ilişkilidir. Yani bu sürümde ham `target = 1`, klinik olarak "hastalık yok" anlamına gelir. Analizde hedef `1 - target` ile çevrilerek **1 = hasta** yapılmıştır (`src/preprocessor.py → fix_target_labels`).
 
 ---
 
 ## ⚙️ Veri Ön İşleme (Pre-processing)
 
-1. **Eksik Değer Analizi:** Veri setinde hiçbir eksik (null) hücre bulunmamaktadır.
-2. **Aykırı Değer Analizi (IQR):** Sürekli sayısal değişkenler kutu grafikleri ile taranmış; fizyolojik olarak mümkün olan aşırı uçlar incelenmiştir.
+1. **Eksik Değer Analizi:** CSV'de boş (NaN) hücre yoktur; ancak orijinal veri setindeki eksik değerler `ca = 4` (5 kayıt) ve `thal = 0` (2 kayıt) kodlarıyla temsil edilir. Bu 7 kayıt (%2) one-hot kodlamada ayrı bir kategori olarak tutulmuştur.
+2. **Aykırı Değer Analizi (IQR):** Sürekli değişkenler kutu grafikleriyle (1,5 × IQR sınırları) taranmış; değerler fizyolojik olarak mümkün olduğundan veri setinden çıkarılmamıştır.
 3. **One-Hot Encoding:** Çok kategorili değişkenler (`cp`, `restecg`, `slope`, `ca`, `thal`) için dummy sütunlar türetilmiş, çoklu doğrusal bağlantıyı önlemek için `drop_first=True` kullanılmıştır.
-4. **Veri Sızıntısı (Data Leakage) Koruması:** `StandardScaler`, **sadece eğitim setine** `fit` edilmiş, test setine sadece `transform` uygulanmıştır.
+4. **Veri Sızıntısı (Data Leakage) Koruması:** `StandardScaler` **yalnızca eğitim setine** `fit` edilmiş, test setine sadece `transform` uygulanmıştır. Çapraz doğrulamada ölçekleyici `Pipeline` içinde her katta yeniden fit edilir.
 
 ![Ölçekleme Karşılaştırması](reports/figures/scaling_distribution_comparison.png)
 
@@ -121,21 +122,31 @@ Veri seti 303 örnek ve 14 temel öznitelikten oluşmaktadır:
 
 | Model | Tip | Açıklama |
 |-------|-----|----------|
-| **Gradient Boosting** | Ensemble (Topluluk) | Hataları ardışık olarak düzelten zayıf karar ağaçları optimizasyonu. |
-| **Decision Tree** | Kural Tabanlı Ağaç | Veriyi bilgi kazancına göre en uygun dallara ayıran şeffaf model. |
-| **Bayesian Network (GaussianNB)** | Olasılıksal Sınıflandırıcı | Özelliklerin koşullu bağımsızlığı varsayımı altında Bayes kuralını uygulayan model. |
+| **Gradient Boosting** | Ensemble (Topluluk) | Bir önceki ağaçların hatalarını ardışık olarak düzelten sığ karar ağaçları. |
+| **Decision Tree** | Kural Tabanlı Ağaç | Veriyi saflık ölçütüne (Gini) göre en iyi ayıran koşullarla dallara bölen, yorumlanabilir model. |
+| **Gaussian Naive Bayes** | Olasılıksal Sınıflandırıcı | Özelliklerin sınıf verildiğinde koşullu bağımsız olduğunu varsayar; sürekli özellikleri Gauss dağılımıyla modeller. Sınıf düğümünün tüm özelliklere bağlandığı en basit yapıdaki Bayes ağıdır. |
 
 ---
 
 ## 📈 Performans Karşılaştırması ve Metrikler
 
-Eğitilen modellerin %20 ayrılmış test seti üzerindeki doğrulama sonuçları:
+**Test seti** (%20, 61 kişi, 28'i hasta; `random_state=42`):
 
 | Model | Accuracy (Doğruluk) | Precision (Kesinlik) | Recall (Duyarlılık) | F1-Score | ROC-AUC |
 | :--- | :---: | :---: | :---: | :---: | :---: |
-| 🥇 **Bayesian Network (GaussianNB)** | **%85.25** | **0.8529** | **%87.88** | **0.8657** | **0.9058** |
-| 🥈 **Gradient Boosting** | %75.41 | 0.7500 | %81.82 | 0.7826 | 0.8604 |
-| 🥉 **Decision Tree** | %73.77 | 0.7429 | %78.79 | 0.7647 | 0.7835 |
+| 🥇 **Gradient Boosting** | **%81.97** | **0.7931** | **%82.14** | **0.8070** | **0.8950** |
+| 🥈 **Gaussian Naive Bayes** | %80.33 | 0.7857 | %78.57 | 0.7857 | 0.8593 |
+| 🥉 **Decision Tree** | %70.49 | 0.7083 | %60.71 | 0.6538 | 0.7457 |
+
+**5 katlı tabakalı çapraz doğrulama** (tüm veri, ortalama ± standart sapma):
+
+| Model | Accuracy | Recall | F1-Score | ROC-AUC |
+| :--- | :---: | :---: | :---: | :---: |
+| **Gaussian Naive Bayes** | **0.825 ± 0.044** | **0.797 ± 0.122** | **0.801 ± 0.064** | 0.879 ± 0.050 |
+| **Gradient Boosting** | 0.786 ± 0.045 | 0.753 ± 0.113 | 0.759 ± 0.060 | **0.895 ± 0.047** |
+| **Decision Tree** | 0.789 ± 0.061 | 0.740 ± 0.111 | 0.759 ± 0.078 | 0.801 ± 0.081 |
+
+**Yorum:** Tek bölmede Gradient Boosting, çapraz doğrulamada ise Gaussian Naive Bayes öndedir; ikisi arasındaki fark standart sapmanın içinde kalır. 303 kayıtlık bir veri setinde bu iki model benzer başarıdadır; tek ağaçlı Decision Tree her iki değerlendirmede de en düşük ROC-AUC'ye sahiptir.
 
 ![Performans Karşılaştırması](reports/figures/models_performance_comparison.png)
 
@@ -147,9 +158,9 @@ Tıbbi teşhislerde hata türleri eşit öneme sahip değildir:
 - **True Positive (TP):** Kalp hastası olan ve doğru teşhis edilen bireyler.
 - **True Negative (TN):** Sağlıklı olan ve doğru teşhis edilen bireyler.
 - **False Positive (FP - Tip I Hata):** Sağlıklı kişiye yanlışlıkla "hasta" denilmesi (ek tetkiklerle düzeltilebilir).
-- **False Negative (FN - Tip II Hata):** Hasta kişiye yanlışlıkla "sağlıklı" denilip taburcu edilmesi (**en tehlikeli klinik hata**).
+- **False Negative (FN - Tip II Hata):** Hasta kişiye yanlışlıkla "sağlıklı" denilmesi (**en tehlikeli klinik hata**).
 
-Gaussian Naive Bayes, yalnızca **4 hastayı** kaçırarak (%87.88 Duyarlılık) klinik olarak en güvenilir model olmuştur.
+Test setindeki 28 hastadan Gradient Boosting **5**, Gaussian Naive Bayes **6**, Decision Tree **11** hastayı kaçırmıştır (FN).
 
 ![Confusion Matrices](reports/figures/confusion_matrices.png)
 
@@ -158,8 +169,8 @@ Gaussian Naive Bayes, yalnızca **4 hastayı** kaçırarak (%87.88 Duyarlılık)
 ## 📉 ROC Eğrileri ve AUC Analizi
 
 Modellerin sınıflandırma eşiğinden bağımsız ayırt edicilik gücünü gösteren ROC eğrileri:
-- **GaussianNB (AUC = 0.906):** Mükemmel düzeyde sınıf ayrımı.
-- **Gradient Boosting (AUC = 0.860):** Güçlü genelleme kapasitesi.
+- **Gradient Boosting (AUC = 0.895)** ve **Gaussian Naive Bayes (AUC = 0.859):** Güçlü sınıf ayrımı.
+- **Decision Tree (AUC = 0.746):** Tek ağaç, az sayıda farklı olasılık değeri ürettiği için daha kaba bir eğri verir.
 
 ![ROC Eğrileri](reports/figures/roc_curves_comparison.png)
 
@@ -167,14 +178,25 @@ Modellerin sınıflandırma eşiğinden bağımsız ayırt edicilik gücünü g�
 
 ## 🔍 Özellik Önemi (Feature Importance) ve Klinik Çıkarımlar
 
-Gradient Boosting modeli üzerinde yapılan özellik önemi analizi, kalp hastalığı riskini en çok artıran klinik bulguları ortaya koymuştur:
+Gradient Boosting modelinde en belirleyici özellikler:
 
-1. **Göğüs Ağrısı Tipi (`cp_2`, `cp_1`):** Atipik veya anjinal olmayan göğüs ağrıları birinci derecede belirleyicidir.
-2. **Maksimum Kalp Hızı (`thalach`):** Efor testinde yeterli tepe nabza ulaşamamak güçlü bir kardiyak risk göstergesidir.
-3. **ST Depresyonu (`oldpeak`):** EKG'de egzersiz kaynaklı ST çökmesi miyokardiyal iskemiye işaret eder.
-4. **Boyanan Damar Sayısı (`ca_1`, `ca_2`):** Floroskopide tıkalı ana damar sayısı doğrudan kalp krizi riskini katlamaktadır.
+1. **Talyum Stres Testi (`thal_2`):** Normal talyum sonucu açık ara en önemli özelliktir (önem ≈ 0,37).
+2. **ST Depresyonu (`oldpeak`):** EKG'de egzersiz kaynaklı ST çökmesi miyokardiyal iskemiye işaret eder.
+3. **Yaş, Kolesterol ve Maksimum Kalp Hızı (`age`, `chol`, `thalach`):** Bir sonraki önem grubunu oluşturur.
+4. **Göğüs Ağrısı Tipi (`cp_3`) ve Efor Anjinası (`exang`):** Tipik angina ve egzersizle gelen göğüs ağrısı da model tarafından kullanılır.
+
+> Özellik önemi bir özelliğin modelde *ne kadar* kullanıldığını gösterir; etkinin yönünü (riski artırıp azalttığını) göstermez.
 
 ![Feature Importance](reports/figures/feature_importance_gradient_boosting.png)
+
+---
+
+## ⚠️ Sınırlamalar
+
+- **Küçük veri seti:** 303 kayıt ve 61 kişilik test seti nedeniyle metrikler bölmeye göre birkaç puan değişebilir; bu yüzden çapraz doğrulama sonuçları da raporlanmıştır.
+- **Tek merkez:** Veri tek bir klinikten (Cleveland) gelir; başka popülasyonlara genellenebilirlik doğrulanmamıştır.
+- **Hiperparametreler:** Modeller makul varsayılan değerlerle eğitilmiştir; sistematik hiperparametre araması yapılmamıştır.
+- Bu çalışma eğitim amaçlıdır; klinik karar için kullanılamaz.
 
 ---
 
@@ -184,17 +206,17 @@ Gradient Boosting modeli üzerinde yapılan özellik önemi analizi, kalp hastal
 Heart-Disease-Prediction/
 ├── data/
 │   └── raw/
-│       └── heart.csv                       # Orijinal veri seti kopyası
+│       └── heart.csv                       # Veri setinin yerel kopyası
 ├── notebooks/
 │   └── Heart_Disease_Analysis.ipynb        # Adım adım çalıştırılabilir Jupyter Notebook
 ├── src/
 │   ├── __init__.py
-│   ├── data_loader.py                      # İnternetten veri çekme ve sağlık kontrolü
-│   ├── preprocessor.py                     # Outlier analizi, One-Hot Encoding, StandardScaler
-│   ├── train.py                            # Model tanımlama ve toplu eğitim modülü
+│   ├── data_loader.py                      # Veri yükleme (yerel kopya yoksa internetten) ve eksik değer kontrolü
+│   ├── preprocessor.py                     # Hedef etiket düzeltmesi, outlier analizi, One-Hot Encoding, StandardScaler
+│   ├── train.py                            # Model tanımlama, eğitim, test metrikleri ve çapraz doğrulama
 │   └── evaluate.py                         # Confusion Matrix, ROC-AUC ve grafik üretim modülü
 ├── reports/
-│   └── figures/                            # 300 DPI yüksek çözünürlüklü grafikler
+│   └── figures/                            # 300 DPI grafikler
 │       ├── outlier_boxplots.png
 │       ├── scaling_distribution_comparison.png
 │       ├── models_performance_comparison.png
@@ -203,8 +225,8 @@ Heart-Disease-Prediction/
 │       └── feature_importance_gradient_boosting.png
 ├── main.py                                 # Tek komutla tüm pipeline'ı çalıştıran script
 ├── requirements.txt                        # Gerekli Python kütüphaneleri
-├── .gitignore                              # Git yapılandırma dosyası
-└── README.md                               # Kapsamlı proje dokümantasyonu
+├── .gitignore
+└── README.md
 ```
 
 ---
@@ -223,7 +245,7 @@ pip install -r requirements.txt
 ```
 
 ### 3. Pipeline'ı Çalıştırın
-Tüm veri çekme, ön işleme, model eğitimi ve grafik üretim adımlarını tek komutla koşturmak için:
+Veri yükleme, ön işleme, model eğitimi, çapraz doğrulama ve grafik üretim adımlarını tek komutla çalıştırmak için:
 ```bash
 python main.py
 ```
