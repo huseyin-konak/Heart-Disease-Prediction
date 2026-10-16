@@ -52,7 +52,7 @@ def plot_roc_curves(results: dict, y_test, output_path: str = "reports/figures/r
     model_colors = {
         'Gradient Boosting': '#1f77b4',
         'Decision Tree': '#ff7f0e',
-        'Bayesian Network (GaussianNB)': '#2ca02c'
+        'Gaussian Naive Bayes': '#2ca02c'
     }
     
     for name, res in results.items():
